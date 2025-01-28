@@ -9,18 +9,29 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-medium mb-4 dark:text-gray-200">About the Project</h3>
             <p className="text-muted-foreground dark:text-gray-400 font-light">
-              An innovative web application built with React and TailwindCSS, 
-              focusing on creating seamless user experiences with modern design principles.
+              A full stack web application that allows users to evaluate the creditworthiness of a potential customer. It includes a feature that trains machine learning model that predicts the creditworthiness of a customer based on their credit history, and a feature that allows users to use that model to evaluate the creditworthiness based on parameters provided by the user.
             </p>
           </div>
           
           <div>
             <h3 className="text-lg font-medium mb-4 dark:text-gray-200">Team</h3>
             <ul className="space-y-2 text-muted-foreground dark:text-gray-400 font-light">
-              <li>John Doe - Lead Developer</li>
-              <li>Jane Smith - UI/UX Designer</li>
-              <li>Alex Johnson - Frontend Developer</li>
-              <li>Dr. Sarah Wilson - Project Instructor</li>
+              <li className="flex items-center justify-between">
+                <span>Bemnet Tekalgn</span>
+                <span className="text-sm text-muted-foreground">GSE-1559-16</span>
+              </li>
+              <li className="flex items-center justify-between">
+                <span>Nathnael Tesfaye</span>
+                <span className="text-sm text-muted-foreground">GSE-6890-16</span>
+              </li>
+              <li className="flex items-center justify-between">
+                <span>Yewebemert Teshome</span>
+                <span className="text-sm text-muted-foreground">GSE-5985-16</span>
+              </li>
+              <li className="flex items-center justify-between">
+                <span>Zemichael Mehretu</span>
+                <span className="text-sm text-muted-foreground">GSE-2606-06</span>
+              </li>
             </ul>
           </div>
 
@@ -29,7 +40,7 @@ export default function Footer() {
             <ul className="space-y-2">
               <li>
                 <a 
-                  href="https://github.com/yourusername/yourproject" 
+                  href="https://github.com/ZemichaelMD/credit-evaluation-with-logical-regression-ml" 
                   className="text-primary hover:underline dark:text-primary-foreground font-light"
                   target="_blank" 
                   rel="noopener noreferrer"
@@ -43,7 +54,7 @@ export default function Footer() {
 
         <CardFooter className="border-t dark:border-gray-700 p-4">
           <p className="text-sm text-muted-foreground dark:text-gray-400 text-center w-full font-light">
-            © {new Date().getFullYear()} Your Project Name. All rights reserved.
+            © {new Date().getFullYear()} Credit Evaluation with Logical Regression. All rights reserved.
           </p>
         </CardFooter>
       </Card>

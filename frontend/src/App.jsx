@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/Tabs";
 import Footer from "./components/Footer";
 import { useDarkMode } from "./providers/DarkModeProvider";
 import Header from "./components/Header";
+import CreditEvaluationForm from "./components/CreditEvaluationForm";
 
 function App() {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
@@ -46,6 +47,12 @@ function App() {
             >
               Evaluation
             </TabsTrigger>
+            <TabsTrigger
+              className="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600"
+              value="column_options"
+            >
+              Credit Evaluation Form
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="training" className="mt-6">
@@ -58,6 +65,10 @@ function App() {
 
           <TabsContent value="evaluation" className="mt-6">
             <EvaluationTab />
+          </TabsContent>
+
+          <TabsContent value="column_options" className="mt-6">
+            <CreditEvaluationForm />
           </TabsContent>
         </Tabs>
       </div>

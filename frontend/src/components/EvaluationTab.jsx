@@ -8,6 +8,7 @@ export default function EvaluationTab() {
   const [file, setFile] = useState(null)
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState(null)
+  const [error, setError] = useState(null)
 
   const [searchTerm, setSearchTerm] = useState('')
   const [filterField, setFilterField] = useState('all')
@@ -26,7 +27,7 @@ export default function EvaluationTab() {
       const response = await axios.post('http://localhost:8000/evaluate', formData)
       setResults(response.data)
     } catch (error) {
-      setResults({ error: error.response?.data?.message || 'An error occurred' })
+      setError(error.response?.data?.message || 'An error occurred')
     }
     setLoading(false)
   }
@@ -104,7 +105,7 @@ export default function EvaluationTab() {
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-gray-700">
                   <SelectItem value="all">All Fields</SelectItem>
-                  {results.data[0] && Object.keys(results.data[0]).map((field) => (
+                  {(results.data && results.data.length > 0 && results.data[0]) && Object.keys(results.data[0]).map((field) => (
                     <SelectItem key={field} value={field}>
                       {field}
                     </SelectItem>
@@ -117,7 +118,7 @@ export default function EvaluationTab() {
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
                 <thead className="bg-gray-50 dark:bg-gray-800">
                   <tr>
-                    {results.data[0] && Object.keys(results.data[0]).map((header) => (
+                    {(results.data && results.data.length > 0 && results.data[0]) && Object.keys(results.data[0]).map((header) => (
                       <th
                         key={header}
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
@@ -137,15 +138,17 @@ export default function EvaluationTab() {
                       {Object.values(row).map((value, cellIdx) => (
                         <td
                           key={cellIdx}
-                          className={`px-6 py-4 whitespace-nowrap text-sm ${
-                            Object.keys(row)[cellIdx] === 'prediction'
-                              ? value === 'Good'
-                                ? 'text-green-600 dark:text-green-400 font-medium'
-                                : 'text-red-600 dark:text-red-400 font-medium'
-                              : 'text-gray-500 dark:text-gray-400'
-                          }`}
+                          className={`px-6 py-4 whitespace-nowrap text-sm`}
                         >
-                          {value}
+                          {Object.keys(row)[cellIdx] === 'prediction' ? (
+                            <span className={`px-4 py-2 rounded-full text-xs font-medium ${
+                              value === 'Good'
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                            }`}>
+                              {value}
+                            </span>
+                          ) : value}
                         </td>
                       ))}
                     </tr>
@@ -157,9 +160,9 @@ export default function EvaluationTab() {
         </div>
       )}
       
-      {results?.error && (
+      {error && (
         <div className="mt-4 p-4 rounded-md bg-red-50 dark:bg-red-900">
-          <p className="text-sm text-red-700 dark:text-red-200">{results.error}</p>
+          <p className="text-sm text-red-700 dark:text-red-200">{error}</p>
         </div>
       )}
 

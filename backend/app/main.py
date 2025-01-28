@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from .ml_utils import load_and_train_model, load_and_evaluate_model, load_and_evaluate_single
+from .ml_utils import load_and_train_model, load_and_evaluate_model, load_and_evaluate_single, evaluate_single_row
+import json
 import pandas as pd
 import io
 
@@ -26,7 +27,8 @@ async def train_model(file: UploadFile = File(...)):
             "message": results["message"],
             "accuracy": results["accuracy"],
             "confusion_matrix": results["confusion_matrix"].tolist(),
-            "classification_report": results["classification_report"]
+            "classification_report": results["classification_report"],
+            "column_options": results["column_options"]
         }
     except Exception as e:
         return {"success": False, "message": str(e)}
@@ -41,7 +43,8 @@ async def predict(file: UploadFile = File(...)):
             "success": True,
             "accuracy": results["accuracy"],
             "confusion_matrix": results["confusion_matrix"].tolist(),
-            "classification_report": results["classification_report"]
+            "classification_report": results["classification_report"],
+            "column_options": results["column_options"]
         }
     except Exception as e:
         return {"success": False, "message": str(e)}
@@ -57,5 +60,27 @@ async def evaluate(file: UploadFile = File(...)):
             "predictions": results["predictions"],
             "data": results["data"]
         }
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
+
+@app.post("/evaluate-credit")
+async def evaluate_credit(form_data: dict):
+    try:
+        results = evaluate_single_row(form_data)
+        
+        if results["success"]:
+            return {
+                "success": True,
+                "message": results["message"],
+                "predictions": results["predictions"],
+                "data": results["data"]
+            }
+        else:
+            return {
+                "success": False,
+                "message": results["message"],
+                "errors": results["errors"]
+            }
     except Exception as e:
         return {"success": False, "message": str(e)}
