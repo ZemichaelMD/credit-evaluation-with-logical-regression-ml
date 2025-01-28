@@ -18,6 +18,32 @@ uvicorn app.main:app --reload
 
 > **Note:** To exit the virtual environment and return to your system's default Python environment, run: `deactivate`
 
+### Installing Python on Windows
+
+1. Download Python from the official website: https://www.python.org/downloads/windows/
+
+2. Run the installer and make sure to check "Add Python to PATH" during installation
+
+3. To verify Python is installed, open Command Prompt and run:
+   ```bash
+   python --version
+   ```
+
+4. If Python is not recognized, manually add it to PATH:
+   - Search for "Edit system environment variables" in Windows search
+   - Click "Environment Variables"
+   - Under "System variables", find and select "Path"
+   - Click "Edit" 
+   - Click "New"
+   - Add the Python installation path (typically something like):
+     ```
+     C:\Users\YourUsername\AppData\Local\Programs\Python\Python3xx\python.exe
+     ```
+   - Click "OK" on all windows to save changes
+   - Restart Command Prompt for changes to take effect
+
+5. After Python is properly installed, you can follow the backend setup instructions above to run the application
+
 ---
 
 ### Frontend
