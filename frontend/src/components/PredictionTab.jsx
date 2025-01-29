@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import axios from 'axios'
+import ModelSelector from './ModelSelector'
+import { getSelectedModel } from '../utils/modelStorage'
 
 export default function PredictionTab() {
   const [file, setFile] = useState(null)
@@ -9,10 +11,11 @@ export default function PredictionTab() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!file) return
-
+  
     const formData = new FormData()
     formData.append('file', file)
-
+    formData.append('model_key', getSelectedModel())
+  
     setLoading(true)
     try {
       const response = await axios.post('http://localhost:8000/predict', formData)
@@ -27,6 +30,8 @@ export default function PredictionTab() {
     <div className="border border-gray-200 bg-white dark:bg-gray-700 dark:border-gray-700 text-gray-700 dark:text-gray-200 shadow sm:rounded-lg p-6">
       <form onSubmit={handleSubmit}>
         <div className="space-y-6">
+          <ModelSelector />
+          
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
               Test Dataset (CSV)

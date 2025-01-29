@@ -1,3 +1,4 @@
+import { useState } from "react";
 import TrainingTab from "./components/TrainingTab";
 import PredictionTab from "./components/PredictionTab";
 import EvaluationTab from "./components/EvaluationTab";
@@ -10,68 +11,84 @@ import CreditEvaluationForm from "./components/CreditEvaluationForm";
 
 function App() {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
+  const [activeTab, setActiveTab] = useState("training");
 
   return (
-    <div
-      id="content-all"
-      className="flex flex-col justify-center items-center min-h-screen bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-    >
+    <div className={`min-h-screen flex flex-col bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 ${isDarkMode ? 'dark' : ''}`}>
+      <div className="flex justify-end p-4">
+        <button
+          onClick={toggleDarkMode}
+          className="p-2 rounded-md bg-gray-200 dark:bg-gray-700"
+        >
+          {isDarkMode ? '🌞' : '🌙'}
+        </button>
+      </div>
+
       <Header />
-      
-      <div className="container py-6">
-        <div className="flex justify-end mb-4">
-          <button
-            onClick={toggleDarkMode}
-            className="px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 transition-colors"
-          >
-            {isDarkMode ? "🌙" : "☀️"} {isDarkMode ? "Is Now Dark" : "Is Now Light"}
-          </button>
-        </div>
-        <Tabs defaultValue="training" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 gap-4">
-            <TabsTrigger
-              className="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600"
+
+      <main className="flex-grow container mx-auto px-4 py-8">
+        <Tabs defaultValue="training" className="space-y-4" onValueChange={setActiveTab}>
+          <TabsList className="grid grid-cols-4 gap-4 w-full">
+            <TabsTrigger 
               value="training"
+              className={`${
+                activeTab === "training" 
+                  ? "bg-indigo-600 text-white dark:bg-indigo-500" 
+                  : "hover:bg-gray-100 dark:hover:bg-gray-700"
+              } px-4 py-2 rounded-lg transition-colors`}
             >
               Training
             </TabsTrigger>
-            <TabsTrigger
-              className="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600"
+            <TabsTrigger 
               value="prediction"
+              className={`${
+                activeTab === "prediction" 
+                  ? "bg-indigo-600 text-white dark:bg-indigo-500" 
+                  : "hover:bg-gray-100 dark:hover:bg-gray-700"
+              } px-4 py-2 rounded-lg transition-colors`}
             >
               Test Model
             </TabsTrigger>
-            <TabsTrigger
-              className="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600"
+            <TabsTrigger 
               value="evaluation"
+              className={`${
+                activeTab === "evaluation" 
+                  ? "bg-indigo-600 text-white dark:bg-indigo-500" 
+                  : "hover:bg-gray-100 dark:hover:bg-gray-700"
+              } px-4 py-2 rounded-lg transition-colors`}
             >
-              Evaluation
+              Evaluate Dataset
             </TabsTrigger>
-            <TabsTrigger
-              className="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600"
-              value="column_options"
+            <TabsTrigger 
+              value="credit-evaluation"
+              className={`${
+                activeTab === "credit-evaluation" 
+                  ? "bg-indigo-600 text-white dark:bg-indigo-500" 
+                  : "hover:bg-gray-100 dark:hover:bg-gray-700"
+              } px-4 py-2 rounded-lg transition-colors`}
             >
-              Credit Evaluation Form
+              Credit Evaluation
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="training" className="mt-6">
+          <TabsContent value="training">
             <TrainingTab />
           </TabsContent>
 
-          <TabsContent value="prediction" className="mt-6">
+          <TabsContent value="prediction">
             <PredictionTab />
           </TabsContent>
 
-          <TabsContent value="evaluation" className="mt-6">
+          <TabsContent value="evaluation">
             <EvaluationTab />
           </TabsContent>
 
-          <TabsContent value="column_options" className="mt-6">
+          <TabsContent value="credit-evaluation">
             <CreditEvaluationForm />
           </TabsContent>
         </Tabs>
-      </div>
+      </main>
+
       <Footer />
     </div>
   );

@@ -6,6 +6,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 import joblib
 import json
+from .models import ModelFactory
 
 # Create models directory if it doesn't exist
 MODEL_DIR = 'models'
@@ -81,13 +82,13 @@ def load_and_train_model(train_df):
     except Exception as e:
         raise Exception(f"Training error: {str(e)}")
 
-def load_and_evaluate_model(test_df):
+def load_and_evaluate_model(test_df, model_key='logistic_regression'):
     try:
         # get the column options
         column_options = get_column_options(test_df)
 
-        # Load the model and encoders
-        lg_model_loaded = joblib.load(os.path.join(MODEL_DIR, 'lg_model.pkl'))
+        # Load the selected model
+        model = joblib.load(os.path.join(MODEL_DIR, f'{model_key}.pkl'))
         label_encoders = joblib.load(os.path.join(MODEL_DIR, 'label_encoders.pkl'))
         scaler = joblib.load(os.path.join(MODEL_DIR, 'scaler.pkl'))
 
@@ -108,7 +109,7 @@ def load_and_evaluate_model(test_df):
         X_test_scaled = scaler.transform(X_test)
 
         # Make predictions
-        y_pred = lg_model_loaded.predict(X_test_scaled)
+        y_pred = model.predict(X_test_scaled)
         
         return {
             "accuracy": accuracy_score(y_test, y_pred),
@@ -119,10 +120,10 @@ def load_and_evaluate_model(test_df):
     except Exception as e:
         raise Exception(f"Prediction error: {str(e)}")
 
-def load_and_evaluate_single(eval_df):
+def load_and_evaluate_single(eval_df, model_key='logistic_regression'):
     try:
-        # Load the model and encoders
-        lg_model_loaded = joblib.load(os.path.join(MODEL_DIR, 'lg_model.pkl'))
+        # Load the selected model
+        model = joblib.load(os.path.join(MODEL_DIR, f'{model_key}.pkl'))
         label_encoders = joblib.load(os.path.join(MODEL_DIR, 'label_encoders.pkl'))
         scaler = joblib.load(os.path.join(MODEL_DIR, 'scaler.pkl'))
 
@@ -145,7 +146,7 @@ def load_and_evaluate_single(eval_df):
         X_eval_scaled = scaler.transform(X_eval)
 
         # Make predictions
-        predictions = lg_model_loaded.predict(X_eval_scaled)
+        predictions = model.predict(X_eval_scaled)
         
         # Convert predictions to "Good" or "Bad"
         prediction_labels = ["Good" if pred == 1 else "Bad" for pred in predictions]
@@ -164,7 +165,7 @@ def load_and_evaluate_single(eval_df):
 
 
 # evaluate a single row of data
-def evaluate_single_row(row):
+def evaluate_single_row(row, model_key='logistic_regression'):
     try:
         # check if the row is a dictionary
         if not isinstance(row, dict):
@@ -223,7 +224,7 @@ def evaluate_single_row(row):
 
         # If validation passes, proceed with evaluation
         df = pd.DataFrame([row])
-        results = load_and_evaluate_single(df)
+        results = load_and_evaluate_single(df, model_key)
         return {
             "success": True,
             "message": "Evaluation successful",
@@ -236,3 +237,54 @@ def evaluate_single_row(row):
     except Exception as e:
         print(e)
         raise Exception(f"Evaluation form error: {str(e)}")
+
+def train_all_models(train_df):
+    try:
+        # Prepare data (reuse your existing preprocessing code)
+        # Apply label encoding to categorical columns
+        label_encoders = {}
+        for column in train_df.select_dtypes(include=['object']).columns:
+            le = LabelEncoder()
+            train_df[column] = le.fit_transform(train_df[column])
+            label_encoders[column] = le
+
+        # Fill missing values
+        train_df = train_df.fillna(train_df.mean())
+
+        # Split features and target
+        X_train = train_df.drop('class', axis=1)
+        y_train = train_df['class']
+
+        # Scale the features
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train)
+
+        # Train all models
+        models_performance = {}
+        for model_name, model_key in ModelFactory.get_all_models().items():
+            model = ModelFactory.get_model(model_key)
+            model.fit(X_train_scaled, y_train)
+            y_pred = model.predict(X_train_scaled)
+            
+            # Save model
+            joblib.dump(model, os.path.join(MODEL_DIR, f'{model_key}.pkl'))
+            
+            # Calculate metrics
+            models_performance[model_key] = {
+                "name": model_name,
+                "accuracy": accuracy_score(y_train, y_pred),
+                "confusion_matrix": confusion_matrix(y_train, y_pred).tolist(),
+                "classification_report": classification_report(y_train, y_pred)
+            }
+
+        # Save preprocessors
+        joblib.dump(label_encoders, os.path.join(MODEL_DIR, 'label_encoders.pkl'))
+        joblib.dump(scaler, os.path.join(MODEL_DIR, 'scaler.pkl'))
+
+        return {
+            "success": True,
+            "message": "Models trained successfully",
+            "models": models_performance
+        }
+    except Exception as e:
+        raise Exception(f"Training error: {str(e)}")

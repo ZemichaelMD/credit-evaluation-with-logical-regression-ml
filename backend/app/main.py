@@ -1,6 +1,6 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from .ml_utils import load_and_train_model, load_and_evaluate_model, load_and_evaluate_single, evaluate_single_row
+from .ml_utils import load_and_train_model, load_and_evaluate_model, load_and_evaluate_single, evaluate_single_row, train_all_models
 import json
 import pandas as pd
 import io
@@ -21,24 +21,17 @@ async def train_model(file: UploadFile = File(...)):
     try:
         contents = await file.read()
         df = pd.read_csv(io.StringIO(contents.decode('utf-8')))
-        results = load_and_train_model(df)
-        return {
-            "success": results["success"],
-            "message": results["message"],
-            "accuracy": results["accuracy"],
-            "confusion_matrix": results["confusion_matrix"].tolist(),
-            "classification_report": results["classification_report"],
-            "column_options": results["column_options"]
-        }
+        results = train_all_models(df)
+        return results
     except Exception as e:
         return {"success": False, "message": str(e)}
 
 @app.post("/predict")
-async def predict(file: UploadFile = File(...)):
+async def predict(file: UploadFile = File(...), model_key: str = Form('logistic_regression')):
     try:
         contents = await file.read()
         df = pd.read_csv(io.StringIO(contents.decode('utf-8')))
-        results = load_and_evaluate_model(df)
+        results = load_and_evaluate_model(df, model_key)
         return {
             "success": True,
             "accuracy": results["accuracy"],
@@ -50,11 +43,11 @@ async def predict(file: UploadFile = File(...)):
         return {"success": False, "message": str(e)}
 
 @app.post("/evaluate")
-async def evaluate(file: UploadFile = File(...)):
+async def evaluate(file: UploadFile = File(...), model_key: str = Form('logistic_regression')):
     try:
         contents = await file.read()
         df = pd.read_csv(io.StringIO(contents.decode('utf-8')))
-        results = load_and_evaluate_single(df)
+        results = load_and_evaluate_single(df, model_key)
         return {
             "success": True,
             "predictions": results["predictions"],
@@ -63,12 +56,13 @@ async def evaluate(file: UploadFile = File(...)):
     except Exception as e:
         return {"success": False, "message": str(e)}
 
-
 @app.post("/evaluate-credit")
-async def evaluate_credit(form_data: dict):
+async def evaluate_credit(
+    form_data: dict,
+    model_key: str = Form('logistic_regression')
+):
     try:
-        results = evaluate_single_row(form_data)
-        
+        results = evaluate_single_row(form_data, model_key)
         if results["success"]:
             return {
                 "success": True,

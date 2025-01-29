@@ -3,6 +3,8 @@ import axios from 'axios'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/Dialog"
 import { Input } from "./ui/Input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/Select"
+import ModelSelector from './ModelSelector'
+import { getSelectedModel } from '../utils/modelStorage'
 
 export default function EvaluationTab() {
   const [file, setFile] = useState(null)
@@ -21,6 +23,7 @@ export default function EvaluationTab() {
 
     const formData = new FormData()
     formData.append('file', file)
+    formData.append('model_key', getSelectedModel())
 
     setLoading(true)
     try {
@@ -55,6 +58,8 @@ export default function EvaluationTab() {
     <div className="border border-gray-200 bg-white dark:bg-gray-700 dark:border-gray-700 text-gray-700 dark:text-gray-200 shadow sm:rounded-lg p-6">
       <form onSubmit={handleSubmit}>
         <div className="space-y-6">
+          <ModelSelector />
+          
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
               Evaluation Dataset (CSV)
